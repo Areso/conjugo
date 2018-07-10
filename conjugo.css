@@ -1,0 +1,8 @@
+#config {
+    cursor: pointer;
+}
+
+span.active {
+    background: #333;
+    color: #eee;
+}

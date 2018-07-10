@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>conjugo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <link rel="stylesheet" href="conjugo.css">
+</head>
+<body>
+    <div id="config" class="container">
+        <div class="mood row justify-content-start">
+            <div class="col-lg-2 col-md-3 text-right">indicativo</div>
+            <div class="tense col">
+                <span data-tense="0" class="active">presente</span>
+                <span data-tense="1">pretérito</span>
+                <span data-tense="2">futuro</span>
+                <span data-tense="3">imperfecto</span>
+                <span data-tense="4">presente-progresivo1</span>
+                <span data-tense="5">presente-progresivo2</span>
+                <span data-tense="6">pretérito-prefecto</span>
+                <span data-tense="7">pluscuamperfecto</span>
+                <span data-tense="8">futuro-prefecto</span>
+                <span data-tense="9">pretérito-anterior</span>        
+            </div>
+        </div>
+        <div class="mood row justify-content-start">
+            <div class="col-lg-2 col-md-3 text-right">condicional</div>
+            <div class="tense col">
+                <span data-tense="10">condicional</span>
+                <span data-tense="11">perfecto</span>        
+            </div>
+        </div>
+        <div class="mood row justify-content-start">
+            <div class="col-lg-2 col-md-3 text-right">subjuntivo</div>
+            <div class="tense col">
+                <span data-tense="12">presente</span>
+                <span data-tense="13">futuro</span>
+                <span data-tense="14">imperfecto1</span>
+                <span data-tense="15">imperfecto2</span>
+                <span data-tense="16">pretérito-perfecto</span>
+                <span data-tense="17">pluscuamperfecto1</span>
+                <span data-tense="18">pluscuamperfecto2</span>
+                <span data-tense="19">futuro perfecto</span>        
+            </div>
+        </div>
+        <div class="mood row justify-content-start">
+            <div class="col-lg-2 col-md-3 text-right">imperativo</div>
+            <div class="tense col">
+                <span data-tense="20">positivo</span>
+                <span data-tense="21">negativo</span>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div id="main" class="container">
+        <div class="row">
+            <div id="translation" class="offset-lg-2 offset-md-3 col h5 font-italic">to conjugate</div>
+        </div>
+        <div class="row justify-content-start">
+            <div id="pronoun" class="col-lg-2 col-md-3 text-right h2">yo</div>
+            <input type="text" class="col h2 form-control" id="verb-input" placeholder="conjugo">
+        </div>
+        <div class="row">
+            <div id="answer1" class="offset-lg-2 offset-md-3 col h5 font-italic">the answer</div>
+        </div>
+        <div class="row">
+            <div id="answer2" class="offset-lg-2 offset-md-3 col h5 font-italic">the answer</div>
+        </div>
+    </div>
+
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
+    <script>
+        if (typeof jQuery == 'undefined') {
+            document.write(unescape("%3Cscript src='fallback/jquery-3.3.1.slim.min.js' type='text/javascript'%3E%3C/script%3E"));
+        }
+    </script>
+
+    <!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script></body>-->
+    <script>
+        if(typeof($.fn.modal) === 'undefined') {
+            document.write('<script src="fallback/bootstrap.min.js"><\/script>');
+            document.write('<link rel="stylesheet" href="fallback/bootstrap.min.css">');
+        }
+    </script>
+
+    <script src="conjugo.js"></script>
+    <script src="conjugo_data.js"></script>
+</html>
