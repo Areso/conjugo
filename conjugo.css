@@ -2,7 +2,15 @@
     cursor: pointer;
 }
 
-span.active {
+.tense > span.active.query {
     background: #333;
     color: #eee;
+}
+
+.tense > span.active {
+    color: #333;
+}
+
+.tense > span {
+    color: #aaa;
 }
