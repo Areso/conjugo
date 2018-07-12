@@ -63,6 +63,7 @@ function choose(a) {
 
 var queryTense = null;
 var queryAnswer = null;
+var queryAnswerNode = null;
 
 function next() {
     // Pick a random verb.
@@ -74,7 +75,8 @@ function next() {
     if(ending == "se") {
         ending = name.slice(-4);
     }
-    console.log("ending", ending);
+    var stem = name.slice(0, -ending.length);
+    console.log("stem", stem, "ending", ending);
     $("#verb-input").attr("placeholder", name);
     $("#translation").text(info["en"]);
     // Pick a random pronoun.
@@ -89,35 +91,46 @@ function next() {
     queryTense.addClass("query");
     var tidx = queryTense.data("tense");
     console.log("tense", tidx, queryTense.text());
-    // Remember the correct answer.
+    // Build the correct answer as a string and formatted content.
+    var isRegular = true;
     queryAnswer = verb['conjs'];
-    if(queryAnswer == "$") {
-        // All tenses of this verb are regular.
-        queryAnswer = regular[ending][tidx][pidx];
-    }
-    else {
+    if(queryAnswer != "$") {
         queryAnswer = queryAnswer[tidx];
-        if(queryAnswer == "*") {
-            // This tense is regular.
-            queryAnswer = regular[ending][tidx][pidx];
-        }
-        else {
+        if(queryAnswer != "*") {
+            // This tense is not regular.
             queryAnswer = queryAnswer[pidx];
-            if(queryAnswer == "*") {
-                // This pronoun is regular.
-                queryAnswer = regular[ending][tidx][pidx];
+            if(queryAnswer != "*") {
+                // This pronoun is not regular.
+                isRegular = false;
+                console.log("irregular", queryAnswer);
             }
         }
     }
+    if(isRegular) {
+        queryAnswer = regular[ending][tidx][pidx];
+        console.log("regular", queryAnswer);
+    }
+    // Replace the stem in the answer, if necessary.
+    if(queryAnswer.includes("_")) {
+        var stemNode = $("<span />").append($("<span />").addClass("stem").html(stem));
+        queryAnswerNode = $("<span />").html(queryAnswer.replace("_", stemNode.html()));
+        queryAnswer = queryAnswer.replace("_", stem);
+    }
+    else {
+        queryAnswerNode = $("<span />").html(queryAnswer);
+    }
+    queryAnswerNode.addClass(isRegular ? "regular" : "irregular");
+
     console.log("answer", queryAnswer);
 }
 
 function handleAnswer() {
     var solution = $("#verb-input").val();
-    if(solution != '') {
-        $("#answer2").text(queryAnswer);
-        $("#answer1").text(solution);
-        $("#verb-input").val('');
-    }
+    $("#answer1").text(solution);
+    $("#verb-input").val('');
+    $("#answer2").html(queryAnswerNode);
     queryTense.removeClass("query");
+    if(solution == queryAnswer) {
+        console.log("CORRECT!");
+    }
 }

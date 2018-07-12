@@ -14,3 +14,13 @@
 .tense > span {
     color: #aaa;
 }
+
+span.regular {
+    color: green;
+}
+span.irregular {
+    color: red;
+}
+span.stem {
+    color: black;
+}
