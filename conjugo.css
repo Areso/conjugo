@@ -24,3 +24,6 @@ span.irregular {
 span.stem {
     color: black;
 }
+div.incorrect {
+    color: red;
+}

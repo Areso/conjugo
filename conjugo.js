@@ -34,9 +34,7 @@ function initialize(jQuery) {
     });
     // Handle typed input.
     $("#verb-input").keypress(function(event) {
-        console.log('key', event.which, event.keyCode);
         if(event.keyCode == "13") {
-            console.log("RETURN");
             event.preventDefault();
             handleAnswer();
             next();
@@ -44,7 +42,13 @@ function initialize(jQuery) {
     });
     $("#verb-input").keydown(function(event) {
         if(event.keyCode == "9") {
-            console.log("TAB");
+            // TAB inserts the verb stem.
+            var partial = $("#verb-input").val();
+            if(partial.length > 0 && partial.slice(-1) != " ") {
+                // Add a space before the stem if necessary.
+                partial += " ";
+            }
+            $("#verb-input").val(partial + verbStem);
             event.preventDefault();
         }
     });
@@ -64,6 +68,7 @@ function choose(a) {
 var queryTense = null;
 var queryAnswer = null;
 var queryAnswerNode = null;
+var verbStem = null;
 
 function next() {
     // Pick a random verb.
@@ -75,8 +80,8 @@ function next() {
     if(ending == "se") {
         ending = name.slice(-4);
     }
-    var stem = name.slice(0, -ending.length);
-    console.log("stem", stem, "ending", ending);
+    verbStem = name.slice(0, -ending.length);
+    console.log("verbStem", verbStem, "ending", ending);
     $("#verb-input").attr("placeholder", name);
     $("#translation").text(info["en"]);
     // Pick a random pronoun.
@@ -112,9 +117,9 @@ function next() {
     }
     // Replace the stem in the answer, if necessary.
     if(queryAnswer.includes("_")) {
-        var stemNode = $("<span />").append($("<span />").addClass("stem").html(stem));
+        var stemNode = $("<span />").append($("<span />").addClass("stem").html(verbStem));
         queryAnswerNode = $("<span />").html(queryAnswer.replace("_", stemNode.html()));
-        queryAnswer = queryAnswer.replace("_", stem);
+        queryAnswer = queryAnswer.replace("_", verbStem);
     }
     else {
         queryAnswerNode = $("<span />").html(queryAnswer);
@@ -124,13 +129,31 @@ function next() {
     console.log("answer", queryAnswer);
 }
 
+var ncorrect = 0, ntried = 0;
+
 function handleAnswer() {
     var solution = $("#verb-input").val();
-    $("#answer1").text(solution);
-    $("#verb-input").val('');
-    $("#answer2").html(queryAnswerNode);
-    queryTense.removeClass("query");
-    if(solution == queryAnswer) {
-        console.log("CORRECT!");
+    $("#answer1").removeClass("incorrect");
+    if(solution == "") {
+        // No answer given.
+        $("#answer1").html(queryAnswerNode);
+        $("#answer2").html("");
     }
+    else {
+        if(solution == queryAnswer) {
+            // Correct answer given.
+            $("#answer1").html(queryAnswerNode);
+            $("#answer2").html("");
+            ncorrect += 1;
+        }
+        else {
+            // Incorrect answer given.
+            $("#answer1").addClass("incorrect").text(solution);
+            $("#answer2").html(queryAnswerNode);
+        }
+        $("#verb-input").val('');
+        ntried += 1;
+    }
+    queryTense.removeClass("query");
+    $("#score").html("" + ncorrect + "/" + ntried);
 }
