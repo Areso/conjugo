@@ -21,6 +21,21 @@ function initData(cdata) {
 }
 
 function initialize(jQuery) {
+    // Ignore clicks on button labels.
+    $(".btn-group > .disabled").click(function(event) {
+        // Immediately toggle this button from its active state.
+        $(this).button("toggle");
+        //event.preventDefault();
+        event.stopPropagation();
+        $("#verb-input").focus();
+    });
+    // Return focus to the text input after a button is clicked.
+    $("div.btn-group > label.btn").click(function() {
+        console.log("button");
+        event.stopPropagation();
+        $(this).button("toggle");
+        $("#verb-input").focus();
+    });
     // Implement toggling tenses on/off.
     $(".tense > span").click(function() {
         var self = $(this);
@@ -71,50 +86,57 @@ var queryAnswerNode = null;
 var verbStem = null;
 
 function next() {
-    // Pick a random verb.
-    var vidx = rint(nverb);
-    var verb = conj[vidx];
-    var info = verb["info"];
-    var name = info["name"];
-    var ending = name.slice(-2);
-    if(ending == "se") {
-        ending = name.slice(-4);
-    }
-    verbStem = name.slice(0, -ending.length);
-    console.log("verbStem", verbStem, "ending", ending);
-    $("#verb-input").attr("placeholder", name);
-    $("#translation").text(info["en"]);
-    // Pick a random pronoun.
-    var pidx = rint(pron.length);
-    var plist = pron[pidx];
-    p = choose(plist.split("/"));
-    console.log('verb', vidx, p, info['name']);
-    $("#pronoun").text(p);
-    // Pick an active tense.
-    var active = $(".tense > span.active");
-    queryTense = $(choose(active));
-    queryTense.addClass("query");
-    var tidx = queryTense.data("tense");
-    console.log("tense", tidx, queryTense.text());
-    // Build the correct answer as a string and formatted content.
-    var isRegular = true;
-    queryAnswer = verb['conjs'];
-    if(queryAnswer != "$") {
-        queryAnswer = queryAnswer[tidx];
-        if(queryAnswer != "*") {
-            // This tense is not regular.
-            queryAnswer = queryAnswer[pidx];
+    // Pick a random verb that satisfies the selection criteria.
+    var selected = false;
+    var name, translation, pronoun;
+    while(!selected) {
+        var vidx = rint(nverb);
+        var verb = conj[vidx];
+        var info = verb["info"];
+        console.log(info);
+        var name = info["name"];
+        var ending = name.slice(-2);
+        if(ending == "se") {
+            ending = name.slice(-4);
+        }
+        verbStem = name.slice(0, -ending.length);
+        translation = info["en"];
+        // Pick a random pronoun.
+        var pidx = rint(pron.length);
+        var plist = pron[pidx];
+        pronoun = choose(plist.split("/"));
+        console.log('verb', vidx, pronoun, info['name']);
+        // Pick an active tense.
+        var active = $(".tense > span.active");
+        queryTense = $(choose(active));
+        queryTense.addClass("query");
+        var tidx = queryTense.data("tense");
+        console.log("tense", tidx, queryTense.text());
+        // Build the correct answer as a string and formatted content.
+        var isRegular = true;
+        queryAnswer = verb['conjs'];
+        if(queryAnswer != "$") {
+            queryAnswer = queryAnswer[tidx];
             if(queryAnswer != "*") {
-                // This pronoun is not regular.
-                isRegular = false;
-                console.log("irregular", queryAnswer);
+                // This tense is not regular.
+                queryAnswer = queryAnswer[pidx];
+                if(queryAnswer != "*") {
+                    // This pronoun is not regular.
+                    isRegular = false;
+                    console.log("irregular", queryAnswer);
+                }
             }
         }
+        if(isRegular) {
+            queryAnswer = regular[ending][tidx][pidx];
+            console.log("regular", queryAnswer);
+        }
+        selected = true;
     }
-    if(isRegular) {
-        queryAnswer = regular[ending][tidx][pidx];
-        console.log("regular", queryAnswer);
-    }
+    // Display the selected query.
+    $("#verb-input").attr("placeholder", name);
+    $("#translation").text(translation);
+    $("#pronoun").text(pronoun);
     // Replace the stem in the answer, if necessary.
     if(queryAnswer.includes("_")) {
         var stemNode = $("<span />").append($("<span />").addClass("stem").html(verbStem));

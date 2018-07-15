@@ -1,37 +1,34 @@
 #main {
     cursor: pointer;
 }
-
 .mood {
     font-style: italic;
 }
-
 .tense {
     font-style: normal;
 }
-
 .tense > span.active.query {
     background: #333;
     color: #eee;
 }
-
 .tense > span.active {
     color: #333;
 }
-
 .tense > span {
     color: #aaa;
 }
-
 span.regular {
-    color: green;
+    color: #2ECC71;
 }
 span.irregular {
-    color: red;
+    color: blue;
 }
 span.stem {
-    color: black;
+    color: #aaa;
 }
 div.incorrect {
     color: red;
+}
+.btn:focus {
+    outline: 0;
 }
