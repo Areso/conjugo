@@ -93,11 +93,24 @@ function next() {
         var vidx = rint(nverb);
         var verb = conj[vidx];
         var info = verb["info"];
-        console.log(info);
+        if(!info["com"]) {
+            // Are uncommon verbs allowed?
+            if($("#pococomunes-no").prop("checked")) continue;
+        }
+        else {
+            // Are common verbs allowed?
+            if($("#pococomunes-only").prop("checked")) continue;
+        }
         var name = info["name"];
         var ending = name.slice(-2);
         if(ending == "se") {
+            // Are reflexive verbs allowed?
+            if($("#reflexivos-no").prop("checked")) continue;
             ending = name.slice(-4);
+        }
+        else {
+            // Are non-reflexive verbs allowed?
+            if($("#reflexivos-only").prop("checked")) continue;
         }
         verbStem = name.slice(0, -ending.length);
         translation = info["en"];
@@ -128,8 +141,14 @@ function next() {
             }
         }
         if(isRegular) {
+            // Are regular verbs allowed?
+            if($("#irregularos-only").prop("checked")) continue;
             queryAnswer = regular[ending][tidx][pidx];
             console.log("regular", queryAnswer);
+        }
+        else {
+            // Are irregular verbs allowed?
+            if($("#irregularos-no").prop("checked")) continue;
         }
         selected = true;
     }
