@@ -1,4 +1,5 @@
 .ipynb_checkpoints
 conjugations.csv
 *.csv
+*.numbers
 conjugo_data_indented.js

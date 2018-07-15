@@ -67,9 +67,30 @@ function initialize(jQuery) {
             event.preventDefault();
         }
     });
+    // Start a new session.
+    startSession();
     // Get the first question.
     next();
     $("#verb-input").focus();
+}
+
+var remaining, sessionCount = 12;
+
+function startSession() {
+    $("#progress").css("width", "0%").attr('aria-valuenow', 0);
+    remaining = sessionCount;
+}
+
+function updateSession() {
+    remaining -= 1;
+    if(remaining) {
+        var progress = (100 * (sessionCount - remaining) / sessionCount).toPrecision(5);
+        $("#progress").css("width", progress + "%").attr("aria-valuenow", progress);
+    }
+    else {
+        // End this session.
+        startSession();
+    }
 }
 
 function rint(n) {
@@ -84,6 +105,7 @@ var queryTense = null;
 var queryAnswer = null;
 var queryAnswerNode = null;
 var verbStem = null;
+var queryTime = null;
 
 function next() {
     // Pick a random verb that satisfies the selection criteria.
@@ -166,13 +188,14 @@ function next() {
         queryAnswerNode = $("<span />").html(queryAnswer);
     }
     queryAnswerNode.addClass(isRegular ? "regular" : "irregular");
-
-    console.log("answer", queryAnswer);
+    queryTime = new Date();
 }
 
 var ncorrect = 0, ntried = 0;
 
 function handleAnswer() {
+    var answerElapsed = new Date() - queryTime;
+    console.log("elapsed", answerElapsed);
     var solution = $("#verb-input").val();
     $("#answer1").removeClass("incorrect");
     if(solution == "") {
@@ -193,8 +216,9 @@ function handleAnswer() {
             $("#answer2").html(queryAnswerNode);
         }
         $("#verb-input").val('');
-        ntried += 1;
     }
+    ntried += 1;
     queryTense.removeClass("query");
     $("#score").html("" + ncorrect + "/" + ntried);
+    updateSession();
 }
