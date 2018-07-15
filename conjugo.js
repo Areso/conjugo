@@ -1,10 +1,5 @@
 $(document).ready(function() {
-    console.log("document loaded");
     initialize();
-});
-
-$(window).on( "load", function() {
-    console.log("window loaded");
 });
 
 var nverb = 0;
@@ -17,7 +12,6 @@ function initData(cdata) {
     conj = cdata["conjugations"];
     regular = cdata["regular"];
     nverb = Object.keys(conj).length;
-    console.log("loaded " + nverb + " verbs.");
 }
 
 function initialize(jQuery) {
@@ -31,7 +25,6 @@ function initialize(jQuery) {
     });
     // Return focus to the text input after a button is clicked.
     $("div.btn-group > label.btn").click(function() {
-        console.log("button");
         event.stopPropagation();
         $(this).button("toggle");
         $("#verb-input").focus();
@@ -74,21 +67,33 @@ function initialize(jQuery) {
     $("#verb-input").focus();
 }
 
-var remaining, sessionCount = 12;
+var correct, remaining, difficulty, sessionStart, sessionCount = 12;
 
 function startSession() {
     $("#progress").css("width", "0%").attr('aria-valuenow', 0);
     remaining = sessionCount;
+    sessionStart = new Date();
+    difficulty = 0;
+    correct = 0;
 }
 
-function updateSession() {
+function updateSession(isCorrect, queryDifficulty) {
     remaining -= 1;
-    if(remaining) {
-        var progress = (100 * (sessionCount - remaining) / sessionCount).toPrecision(5);
+    difficulty += queryDifficulty;
+    if(isCorrect) correct += 1;
+    if(remaining > 0) {
+        var progress = (100 * (sessionCount - remaining) / sessionCount).toFixed(2);
         $("#progress").css("width", progress + "%").attr("aria-valuenow", progress);
     }
     else {
         // End this session.
+        var elapsed = (new Date() - sessionStart) / 1000;
+        var accuracy = 100 * correct / sessionCount;
+        var diff = 10 * difficulty / (6 * sessionCount);
+        $("#speed").text("speed: " + elapsed.toFixed(1) + "s");
+        $("#accuracy").text("accuracy: " + accuracy + "%");
+        $("#difficulty").text("difficulty: " + diff.toFixed(0) + "/10");
+        // Start a new session.
         startSession();
     }
 }
@@ -106,6 +111,7 @@ var queryAnswer = null;
 var queryAnswerNode = null;
 var verbStem = null;
 var queryTime = null;
+var queryDifficulty = null;
 
 function next() {
     // Pick a random verb that satisfies the selection criteria.
@@ -115,9 +121,11 @@ function next() {
         var vidx = rint(nverb);
         var verb = conj[vidx];
         var info = verb["info"];
+        queryDifficulty = 0;
         if(!info["com"]) {
             // Are uncommon verbs allowed?
             if($("#pococomunes-no").prop("checked")) continue;
+            queryDifficulty += 2;
         }
         else {
             // Are common verbs allowed?
@@ -129,6 +137,7 @@ function next() {
             // Are reflexive verbs allowed?
             if($("#reflexivos-no").prop("checked")) continue;
             ending = name.slice(-4);
+            queryDifficulty += 1;
         }
         else {
             // Are non-reflexive verbs allowed?
@@ -140,13 +149,11 @@ function next() {
         var pidx = rint(pron.length);
         var plist = pron[pidx];
         pronoun = choose(plist.split("/"));
-        console.log('verb', vidx, pronoun, info['name']);
         // Pick an active tense.
         var active = $(".tense > span.active");
         queryTense = $(choose(active));
         queryTense.addClass("query");
         var tidx = queryTense.data("tense");
-        console.log("tense", tidx, queryTense.text());
         // Build the correct answer as a string and formatted content.
         var isRegular = true;
         queryAnswer = verb['conjs'];
@@ -158,7 +165,6 @@ function next() {
                 if(queryAnswer != "*") {
                     // This pronoun is not regular.
                     isRegular = false;
-                    console.log("irregular", queryAnswer);
                 }
             }
         }
@@ -166,11 +172,11 @@ function next() {
             // Are regular verbs allowed?
             if($("#irregularos-only").prop("checked")) continue;
             queryAnswer = regular[ending][tidx][pidx];
-            console.log("regular", queryAnswer);
         }
         else {
             // Are irregular verbs allowed?
             if($("#irregularos-no").prop("checked")) continue;
+            queryDifficulty += 3;
         }
         selected = true;
     }
@@ -188,16 +194,12 @@ function next() {
         queryAnswerNode = $("<span />").html(queryAnswer);
     }
     queryAnswerNode.addClass(isRegular ? "regular" : "irregular");
-    queryTime = new Date();
 }
 
-var ncorrect = 0, ntried = 0;
-
 function handleAnswer() {
-    var answerElapsed = new Date() - queryTime;
-    console.log("elapsed", answerElapsed);
     var solution = $("#verb-input").val();
     $("#answer1").removeClass("incorrect");
+    var isCorrect = false;
     if(solution == "") {
         // No answer given.
         $("#answer1").html(queryAnswerNode);
@@ -208,7 +210,7 @@ function handleAnswer() {
             // Correct answer given.
             $("#answer1").html(queryAnswerNode);
             $("#answer2").html("");
-            ncorrect += 1;
+            isCorrect = true;
         }
         else {
             // Incorrect answer given.
@@ -217,8 +219,6 @@ function handleAnswer() {
         }
         $("#verb-input").val('');
     }
-    ntried += 1;
     queryTense.removeClass("query");
-    $("#score").html("" + ncorrect + "/" + ntried);
-    updateSession();
+    updateSession(isCorrect, queryDifficulty);
 }
