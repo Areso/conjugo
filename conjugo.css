@@ -1,5 +1,13 @@
-#config {
+#main {
     cursor: pointer;
+}
+
+.mood {
+    font-style: italic;
+}
+
+.tense {
+    font-style: normal;
 }
 
 .tense > span.active.query {

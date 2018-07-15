@@ -1,0 +1,4 @@
+.ipynb_checkpoints
+conjugations.csv
+*.csv
+conjugo_data_indented.js

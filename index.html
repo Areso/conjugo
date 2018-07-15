@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="conjugo.css">
 </head>
 <body>
-    <div id="config" class="container">
+    <div id="main" class="container">
+        <hr>
         <div class="mood row justify-content-start">
             <div class="col-lg-2 col-md-3 text-right">indicativo</div>
             <div class="tense col">
@@ -52,9 +53,7 @@
                 <span data-tense="21">negativo</span>
             </div>
         </div>
-    </div>
-    <hr>
-    <div id="main" class="container">
+        <hr>
         <div class="row">
             <div id="translation" class="offset-lg-2 offset-md-3 col h5 font-italic">to conjugate</div>
         </div>
@@ -71,16 +70,17 @@
         <div class="row">
             <div id="answer2" class="offset-lg-2 offset-md-3 col h5 font-italic"></div>
         </div>
+        <hr>
     </div>
 
-    <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script>
         if (typeof jQuery == 'undefined') {
             document.write(unescape("%3Cscript src='fallback/jquery-3.3.1.slim.min.js' type='text/javascript'%3E%3C/script%3E"));
         }
     </script>
 
-    <!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script></body>-->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script></body>
     <script>
         if(typeof($.fn.modal) === 'undefined') {
             document.write('<script src="fallback/bootstrap.min.js"><\/script>');
