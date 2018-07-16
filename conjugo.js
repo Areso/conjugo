@@ -78,6 +78,9 @@ function startSession() {
 }
 
 function updateSession(isCorrect, queryDifficulty) {
+    // Parameters:
+    //   isCorrect (bool): is the most recent query answer correct?
+    //   queryDifficulty (number): value 0-1.
     remaining -= 1;
     difficulty += queryDifficulty;
     if(isCorrect) correct += 1;
@@ -89,9 +92,9 @@ function updateSession(isCorrect, queryDifficulty) {
         // End this session.
         var elapsed = (new Date() - sessionStart) / 1000;
         var accuracy = 100 * correct / sessionCount;
-        var diff = 10 * difficulty / (6 * sessionCount);
+        var diff = 10 * Math.round(difficulty / sessionCount);
         $("#speed").text("speed: " + elapsed.toFixed(1) + "s");
-        $("#accuracy").text("accuracy: " + accuracy + "%");
+        $("#accuracy").text("accuracy: " + accuracy.toFixed(0) + "%");
         $("#difficulty").text("difficulty: " + diff.toFixed(0) + "/10");
         // Start a new session.
         startSession();
@@ -117,19 +120,20 @@ function next() {
     // Pick a random verb that satisfies the selection criteria.
     var selected = false;
     var name, translation, pronoun;
+    var isUncommon, isReflexive, isIrregular;
     while(!selected) {
         var vidx = rint(nverb);
         var verb = conj[vidx];
         var info = verb["info"];
-        queryDifficulty = 0;
         if(!info["com"]) {
             // Are uncommon verbs allowed?
             if($("#pococomunes-no").prop("checked")) continue;
-            queryDifficulty += 2;
+            isUncommon = true;
         }
         else {
             // Are common verbs allowed?
             if($("#pococomunes-only").prop("checked")) continue;
+            isUncommon = false;
         }
         var name = info["name"];
         var ending = name.slice(-2);
@@ -137,11 +141,12 @@ function next() {
             // Are reflexive verbs allowed?
             if($("#reflexivos-no").prop("checked")) continue;
             ending = name.slice(-4);
-            queryDifficulty += 1;
+            isReflexive = true;
         }
         else {
             // Are non-reflexive verbs allowed?
             if($("#reflexivos-only").prop("checked")) continue;
+            isReflexive = false;
         }
         verbStem = name.slice(0, -ending.length);
         translation = info["en"];
@@ -152,10 +157,9 @@ function next() {
         // Pick an active tense.
         var active = $(".tense > span.active");
         queryTense = $(choose(active));
-        queryTense.addClass("query");
         var tidx = queryTense.data("tense");
         // Build the correct answer as a string and formatted content.
-        var isRegular = true;
+        var isIrregular = false;
         queryAnswer = verb['conjs'];
         if(queryAnswer != "$") {
             queryAnswer = queryAnswer[tidx];
@@ -164,23 +168,23 @@ function next() {
                 queryAnswer = queryAnswer[pidx];
                 if(queryAnswer != "*") {
                     // This pronoun is not regular.
-                    isRegular = false;
+                    isIrregular = true;
                 }
             }
         }
-        if(isRegular) {
+        if(isIrregular) {
+            // Are irregular verbs allowed?
+            if($("#irregularos-no").prop("checked")) continue;
+        }
+        else {
             // Are regular verbs allowed?
             if($("#irregularos-only").prop("checked")) continue;
             queryAnswer = regular[ending][tidx][pidx];
         }
-        else {
-            // Are irregular verbs allowed?
-            if($("#irregularos-no").prop("checked")) continue;
-            queryDifficulty += 3;
-        }
         selected = true;
     }
     // Display the selected query.
+    queryTense.addClass("query");
     $("#verb-input").attr("placeholder", name);
     $("#translation").text(translation);
     $("#pronoun").text(pronoun);
@@ -193,7 +197,12 @@ function next() {
     else {
         queryAnswerNode = $("<span />").html(queryAnswer);
     }
-    queryAnswerNode.addClass(isRegular ? "regular" : "irregular");
+    queryAnswerNode.addClass(isIrregular ? "irregular" : "regular");
+    // Calculate this query's difficulty 0-1 based on (isUncommon, isReflexive, isIrregular).
+    queryDifficulty = 0;
+    if(isIrregular) queryDifficulty += 0.5;
+    if(isUncommon) queryDifficulty += 0.3;
+    if(isReflexive) queryDifficulty += 0.2;
 }
 
 function handleAnswer() {
