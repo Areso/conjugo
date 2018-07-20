@@ -135,19 +135,31 @@
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script>
-        if (typeof jQuery == 'undefined') {
-            document.write(unescape("%3Cscript src='fallback/jquery-3.3.1.slim.min.js' type='text/javascript'%3E%3C/script%3E"));
+        if(typeof jQuery == 'undefined') {
+            console.log("Using fallback jquery.");
+            document.write('<script src="fallback/jquery-3.3.1.slim.min.js"><\/script>');
+            //document.write(unescape("%3Cscript src='fallback/jquery-3.3.1.slim.min.js' type='text/javascript'%3E%3C/script%3E"));
         }
     </script>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script></body>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     <script>
         if(typeof($.fn.modal) === 'undefined') {
+            console.log("Using fallback bootstrap.");
             document.write('<script src="fallback/bootstrap.min.js"><\/script>');
             document.write('<link rel="stylesheet" href="fallback/bootstrap.min.css">');
         }
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
+    <script>
+        if(!window.d3) {
+            console.log("Using fallback d3.");
+            document.write('<script src="fallback/d3.min.js"><\/script>');
+        }
+    </script>
+
     <script src="conjugo.js"></script>
     <script src="conjugo_data.js"></script>
+</body>
 </html>
