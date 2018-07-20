@@ -50,13 +50,23 @@ function initialize(jQuery) {
     });
     $("#verb-input").keydown(function(event) {
         if(event.keyCode == "9") {
-            // TAB inserts the verb stem.
-            var partial = $("#verb-input").val();
-            if(partial.length > 0 && partial.slice(-1) != " ") {
-                // Add a space before the stem if necessary.
-                partial += " ";
+            if(!hintGiven) {
+                // The first TAB displays the verb infinitive.
+                $("#verb-input").attr("placeholder", verbInfinitive);
+                $("#verb-input").val("");
+                // Penalize the difficulty for using this hint.
+                queryDifficulty = 0;
+                hintGiven = true;
             }
-            $("#verb-input").val(partial + verbStem);
+            else {
+                // A second TAB appends the verb stem to the current input.
+                var partial = $("#verb-input").val();
+                if(partial.length > 0 && partial.slice(-1) != " ") {
+                    // Add a space before the stem if necessary.
+                    partial += " ";
+                }
+                $("#verb-input").val(partial + verbStem);
+            }
             event.preventDefault();
         }
     });
@@ -67,13 +77,13 @@ function initialize(jQuery) {
     $("#verb-input").focus();
 }
 
-var correct, remaining, difficulty, sessionStart, sessionCount = 12;
+var correct, remaining, sessionDifficulty, sessionStart, numSessionQueries = 12;
 
 function startSession() {
     $("#progress").css("width", "0%").attr('aria-valuenow', 0);
-    remaining = sessionCount;
+    remaining = numSessionQueries;
     sessionStart = new Date();
-    difficulty = 0;
+    sessionDifficulty = 0;
     correct = 0;
 }
 
@@ -82,17 +92,17 @@ function updateSession(isCorrect, queryDifficulty) {
     //   isCorrect (bool): is the most recent query answer correct?
     //   queryDifficulty (number): value 0-1.
     remaining -= 1;
-    difficulty += queryDifficulty;
+    sessionDifficulty += queryDifficulty;
     if(isCorrect) correct += 1;
     if(remaining > 0) {
-        var progress = (100 * (sessionCount - remaining) / sessionCount).toFixed(2);
+        var progress = (100 * (numSessionQueries - remaining) / numSessionQueries).toFixed(2);
         $("#progress").css("width", progress + "%").attr("aria-valuenow", progress);
     }
     else {
         // End this session.
         var elapsed = (new Date() - sessionStart) / 1000;
-        var accuracy = 100 * correct / sessionCount;
-        var diff = 10 * Math.round(difficulty / sessionCount);
+        var accuracy = 100 * correct / numSessionQueries;
+        var diff = Math.round(10 * sessionDifficulty / numSessionQueries);
         $("#speed").text("speed: " + elapsed.toFixed(1) + "s");
         $("#accuracy").text("accuracy: " + accuracy.toFixed(0) + "%");
         $("#difficulty").text("difficulty: " + diff.toFixed(0) + "/10");
@@ -112,6 +122,8 @@ function choose(a) {
 var queryTense = null;
 var queryAnswer = null;
 var queryAnswerNode = null;
+var verbInfinitive = null;
+var hintGiven = false;
 var verbStem = null;
 var queryTime = null;
 var queryDifficulty = null;
@@ -119,7 +131,7 @@ var queryDifficulty = null;
 function next() {
     // Pick a random verb that satisfies the selection criteria.
     var selected = false;
-    var name, translation, pronoun;
+    var translation, pronoun;
     var isUncommon, isReflexive, isIrregular;
     while(!selected) {
         var vidx = rint(nverb);
@@ -135,12 +147,12 @@ function next() {
             if($("#pococomunes-only").prop("checked")) continue;
             isUncommon = false;
         }
-        var name = info["name"];
-        var ending = name.slice(-2);
+        verbInfinitive = info["name"];
+        var ending = verbInfinitive.slice(-2);
         if(ending == "se") {
             // Are reflexive verbs allowed?
             if($("#reflexivos-no").prop("checked")) continue;
-            ending = name.slice(-4);
+            ending = verbInfinitive.slice(-4);
             isReflexive = true;
         }
         else {
@@ -148,7 +160,7 @@ function next() {
             if($("#reflexivos-only").prop("checked")) continue;
             isReflexive = false;
         }
-        verbStem = name.slice(0, -ending.length);
+        verbStem = verbInfinitive.slice(0, -ending.length);
         translation = info["en"];
         // Pick a random pronoun.
         var pidx = rint(pron.length);
@@ -185,7 +197,8 @@ function next() {
     }
     // Display the selected query.
     queryTense.addClass("query");
-    $("#verb-input").attr("placeholder", name);
+    $("#verb-input").attr("placeholder", "TAB for infinitive");
+    hintGiven = false;
     $("#translation").text(translation);
     $("#pronoun").text(pronoun);
     // Replace the stem in the answer, if necessary.
@@ -199,10 +212,11 @@ function next() {
     }
     queryAnswerNode.addClass(isIrregular ? "irregular" : "regular");
     // Calculate this query's difficulty 0-1 based on (isUncommon, isReflexive, isIrregular).
-    queryDifficulty = 0;
-    if(isIrregular) queryDifficulty += 0.5;
-    if(isUncommon) queryDifficulty += 0.3;
-    if(isReflexive) queryDifficulty += 0.2;
+    // The base value (0.3) is subtracted if TAB is used to reveal the infinitive.
+    queryDifficulty = 0.3;
+    if(isIrregular) queryDifficulty += 0.4;
+    if(isUncommon) queryDifficulty += 0.2;
+    if(isReflexive) queryDifficulty += 0.1;
 }
 
 function handleAnswer() {
