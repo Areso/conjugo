@@ -6,6 +6,7 @@ var nverb = 0;
 var pron = null;
 var conj = null;
 var regular = null;
+var sessionData = null;
 
 function initData(cdata) {
     pron = cdata["pronouns"];
@@ -15,6 +16,18 @@ function initData(cdata) {
 }
 
 function initialize(jQuery) {
+    // Lookup data from a previous session.
+    sessionData = localStorage.getItem("sessionData");
+    if(!sessionData) {
+        console.log("init sessionData");
+        sessionData = {
+            "nsessions": 0
+        };
+    }
+    else {
+        sessionData = JSON.parse(sessionData);
+    }
+    console.log("sessionData:", sessionData);
     // Ignore clicks on button labels.
     $(".btn-group > .disabled").click(function(event) {
         // Immediately toggle this button from its active state.
@@ -106,6 +119,10 @@ function updateSession(isCorrect, queryDifficulty) {
         $("#speed").text("speed: " + elapsed.toFixed(1) + "s");
         $("#accuracy").text("accuracy: " + accuracy.toFixed(0) + "%");
         $("#difficulty").text("difficulty: " + diff.toFixed(0) + "/10");
+        // Save session data.
+        sessionData.nsessions += 1;
+        console.log("storing:", sessionData);
+        localStorage.setItem("sessionData", JSON.stringify(sessionData));
         // Start a new session.
         startSession();
     }
