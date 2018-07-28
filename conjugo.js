@@ -83,11 +83,17 @@ function initialize(jQuery) {
             event.preventDefault();
         }
     });
+    // Initialize the chart.
+    initChart();
     // Start a new session.
     startSession();
     // Get the first question.
     next();
     $("#verb-input").focus();
+}
+
+function initChart() {
+    // Build a database of verb properties.
 }
 
 var correct, remaining, sessionDifficulty, sessionStart, numSessionQueries = 12;
