@@ -234,6 +234,10 @@ function next() {
         queryAnswerNode = $("<span />").html(queryAnswer);
     }
     queryAnswerNode.addClass(isIrregular ? "irregular" : "regular");
+    // Append details of what was asked in this query.
+    queryAnswerNode = $("<span />").append(queryAnswerNode).append(
+        $("<span />").html("&emsp;[" + pronoun + " + " + verbInfinitive +
+        " &rarr; " + queryTense.text() + "]").addClass("details"));
     // Calculate this query's difficulty 0-1 based on (isUncommon, isReflexive, isIrregular).
     // The base value (0.3) is subtracted if TAB is used to reveal the infinitive.
     queryDifficulty = 0.3;
