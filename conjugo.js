@@ -55,6 +55,11 @@ function initialize(jQuery) {
     });
     // Handle typed input.
     $("#verb-input").keypress(function(event) {
+        if(sessionStart == null) {
+            // Start session timer after first keystroke.
+            sessionStart = new Date();
+            console.log("start at", sessionStart);
+        }
         if(event.keyCode == "13") {
             event.preventDefault();
             handleAnswer();
@@ -101,7 +106,7 @@ var correct, remaining, sessionDifficulty, sessionStart, numSessionQueries = 12;
 function startSession() {
     $("#progress").css("width", "0%").attr('aria-valuenow', 0);
     remaining = numSessionQueries;
-    sessionStart = new Date();
+    sessionStart = null; // wait until first keystroke to start session
     sessionDifficulty = 0;
     correct = 0;
 }
